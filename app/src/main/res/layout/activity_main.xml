@@ -1,19 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    android:orientation="vertical"
+
+    >
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipeContainer"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
 
-        <WebView
-            android:id="@+id/webview"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+      >
+      <RelativeLayout
+          android:layout_width="match_parent"
+          android:layout_height="match_parent">
+
+
+          <WebView
+              android:id="@+id/webview"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              />
+
+          <TextView
+              android:layout_width="match_parent"
+              android:layout_above="@+id/webview"
+              android:layout_height="200dp"
+              android:background="#45BD7B"
+              android:text="Edit Your PDF File"
+              android:layout_marginBottom="-100dp"
+              android:textSize="40dp"
+              android:textColor="@color/white"
+              android:textAlignment="center"
+              android:gravity="center"
+              />
+
+      </RelativeLayout>
+
+
+
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 </RelativeLayout>

@@ -10,6 +10,9 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.view.View
+import android.view.WindowInsets
+import android.view.WindowInsetsController
 import android.webkit.CookieManager
 import android.webkit.URLUtil
 import android.webkit.ValueCallback
@@ -17,6 +20,7 @@ import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 
@@ -27,6 +31,8 @@ class MainActivity : AppCompatActivity() {
     private var fileChooserCallback: ValueCallback<Array<Uri>>? = null
     private val FILE_CHOOSER_REQUEST_CODE = 1
 
+
+    @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -42,7 +48,27 @@ class MainActivity : AppCompatActivity() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 swipeContainer.isRefreshing = false
             }
+            override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
+                return false
+            }
         }
+
+        // Hide status bar (notification bar)
+      //  window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            window.insetsController?.let {
+                it.hide(WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars())
+                it.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            }
+        } else {
+            @Suppress("DEPRECATION")
+            window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_FULLSCREEN
+                    or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                    or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
+        }
+
+
+
 
         myWebView.webChromeClient = object : WebChromeClient() {
             override fun onShowFileChooser(
@@ -68,6 +94,9 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+
+
+
         myWebView.setDownloadListener { url, userAgent, contentDisposition, mimeType, contentLength ->
             val request = DownloadManager.Request(Uri.parse(url))
             request.setMimeType(mimeType)
@@ -89,7 +118,12 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(applicationContext, "Downloading File", Toast.LENGTH_LONG).show()
         }
 
+
+
         loadUrl()
+        myWebView.setOnScrollChangeListener { _, _, scrollY, _, _ ->
+            swipeContainer.isEnabled = scrollY == 0
+        }
 
         swipeContainer.setOnRefreshListener {
             if (isNetworkAvailable(this)) {
@@ -106,6 +140,17 @@ class MainActivity : AppCompatActivity() {
             myWebView.loadUrl("https://www.sejda.com/pdf-editor")
         } else {
             Toast.makeText(this, "No internet connection", Toast.LENGTH_LONG).show()
+        }
+    }
+
+
+
+
+    override fun onBackPressed() {
+        if (myWebView.canGoBack()) {
+            myWebView.goBack()
+        } else {
+            super.onBackPressed()
         }
     }
 
